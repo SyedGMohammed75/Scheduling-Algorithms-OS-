@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .algorithm-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .algorithm-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        #algorithm {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        #algorithm label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        #algorithm label:hover {
+            color: #667eea;
+        }
+
+        #algorithm input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        #inputTable {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #inputTable th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #inputTable td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            transition: background 0.3s;
+        }
+
+        #inputTable tr:hover td {
+            background: #f8f9fa;
+        }
+
+        #inputTable input[type="text"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        #inputTable input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        button, input[type="button"] {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="button"][value="+"] {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+        }
+
+        input[type="button"][value="+"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        #minus {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            position: absolute;
+        }
+
+        #minus:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(235, 51, 73, 0.4);
+        }
+
+        input[type="button"][value="Go"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2em;
+        }
+
+        input[type="button"][value="Go"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #quantumParagraph {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        #quantumParagraph label {
+            font-weight: 600;
+            color: #555;
+            margin-right: 10px;
+        }
+
+        #quantum {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 80px;
+        }
+
+        fresh {
+            display: block;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        fresh th {
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+            text-align: center;
+            border: 2px solid #667eea;
+            padding: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        fresh td {
+            border: 2px solid #667eea;
+            border-top: 0;
+            padding: 10px;
+            text-align: center;
+            background: white;
+            font-weight: 500;
+        }
+
+        #resultTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .stats-section p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-section strong {
+            font-weight: 600;
+        }
+
+        .stats-section span {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: 700;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        #curtain {
+            background-color: white;
+            z-index: 10;
+        }
+
+        .table-wrapper {
+            position: relative;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ CPU Scheduling Simulator</h1>
+        
+        <div class="algorithm-section">
+            <h3>Select Scheduling Algorithm:</h3>
+            <form id="algorithm">
+                <label>
+                    <input type="radio" name="algorithm" value="fcfs" checked/>
+                    <span>FCFS</span>
+                </label>
+                <label>
+                    <input type="radio" name="algorithm" value="sjf"/>
+                    <span>SJF</span>
+                </label>
+                <label>
+                    <input type="radio" name="algorithm" value="priority"/>
+                    <span>Priority Scheduling</span>
+                </label>
+                <label>
+                    <input type="radio" name="algorithm" value="robin"/>
+                    <span>Round Robin</span>
+                </label>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="inputTable">
+                <tr>
+                    <th>Process</th>
+                    <th>Arrival Time</th>
+                    <th>Burst Time</th>
+                    <th class="bursttime">Completion Time</th>
+                    <th class="bursttime">Turnaround Time</th>
+                    <th class="bursttime">Waiting Time</th>
+                    <th class="priority-only">Priority</th>
+                </tr>
+                <tr>
+                    <td>P0</td>
+                    <td>0</td>
+                    <td><input class="initial exectime" type="text" value="5" /></td>
+                    <td class="bursttime completion-time"></td>
+                    <td class="bursttime turnaround-time"></td>
+                    <td class="bursttime waiting-time"></td>
+                    <td class="priority-only initial"><input type="text"/></td>
+                </tr>
+                <tr>
+                    <td>P1</td>
+                    <td>1</td>
+                    <td><input class="initial exectime" value="3" /></td>
+                    <td class="bursttime completion-time"></td>
+                    <td class="bursttime turnaround-time"></td>
+                    <td class="bursttime waiting-time"></td>
+                    <td class="priority-only"><input type="text"/></td>
+                </tr>
+            </table>
+            <input id="minus" style="display: inline; left: 674px; top: 170px;" type="button" value="-" onclick="deleteRow();" />
+        </div>
+
+        <div class="button-group">
+            <input type="button" value="+" onclick="addRow();" />
+        </div>
+        
+        <div id="quantumParagraph" hidden>
+            <label>Time Slice:</label>
+            <input id="quantum" type="text" value="3" />
+        </div>
+        
+        <div style="text-align: center;">
+            <input type="button" value="Go" onclick="draw();" />
+        </div>
+
+        <fresh></fresh>
+
+        <div class="stats-section">
+            <p>
+                <strong>📊 Average Turnaround Time:</strong>
+                <span id="avgTAT">-</span>
+            </p>
+            <p>
+                <strong>⏱️ Average Waiting Time:</strong>
+                <span id="avgWT">-</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
